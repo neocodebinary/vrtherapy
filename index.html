@@ -133,7 +133,10 @@
             interaccionUsuario(); // Iniciar timer
 
             try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
+                // OPTIMIZACIÓN 1: Pedimos resolución HD en el permiso inicial
+                await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } } 
+                });
                 
                 const dispositivos = await navigator.mediaDevices.enumerateDevices();
                 listaCamaras = dispositivos.filter(d => d.kind === 'videoinput');
@@ -163,10 +166,19 @@
             btn.innerText = `Cargando Cám ${index + 1}...`;
 
             try {
-                streamActual = await navigator.mediaDevices.getUserMedia({
-                    video: { deviceId: { exact: camara.deviceId } },
+                // OPTIMIZACIÓN 2: Pedimos resolución "ideal" HD (720p).
+                // Esto evita que los móviles viejos se saturen con 4K
+                // y que el S24 no falle si no tiene una resolución exacta.
+                const constraints = {
+                    video: { 
+                        deviceId: { exact: camara.deviceId },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
                     audio: false
-                });
+                };
+
+                streamActual = await navigator.mediaDevices.getUserMedia(constraints);
                 
                 document.getElementById('videoL').srcObject = streamActual;
                 document.getElementById('videoR').srcObject = streamActual;
@@ -176,8 +188,6 @@
 
             } catch (err) {
                 console.log("Error en cámara " + index + ", saltando...");
-                
-            
                 
                 intentosFallidos++;
                 // Si hemos probado todas y ninguna va, paramos para no colgar el móvil
