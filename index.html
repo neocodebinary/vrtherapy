@@ -215,6 +215,34 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        /* Selector de Idioma */
+        .language-container {
+            margin-top: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .language-container select {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            text-align: center;
+            text-transform: capitalize;
+        }
+
+        .language-container select option {
+            background: #222;
+            color: white;
+        }
     </style>
 </head>
 
@@ -222,30 +250,40 @@
 
     <!-- PANTALLA INICIO -->
     <div id="pantallaInicio">
-        <h1>Terapia Espejo VR</h1>
-        <p>Rehabilitación neuronal mediante realidad virtual.<br>Funciona en cualquier móvil con Cardboard/Visor VR.</p>
+        <h1 data-i18n="title">Terapia Espejo VR</h1>
+        <p data-i18n="desc">Rehabilitación neuronal mediante realidad virtual.<br>Funciona en cualquier móvil con
+            Cardboard/Visor VR.</p>
 
-        <button class="btn-grande" onclick="iniciarApp(event)">COMENZAR</button>
+        <button class="btn-grande" onclick="iniciarApp(event)" data-i18n="start">COMENZAR</button>
 
-        <p style="font-size: 0.8rem; margin-top: 30px; opacity: 0.6;">
+        <p style="font-size: 0.8rem; margin-top: 30px; opacity: 0.6; margin-bottom: 0;" data-i18n="perm">
             Asegúrate de permitir el acceso a la cámara.
         </p>
 
-        <a href="https://www.paypal.me/josestorm88" target="_blank" class="btn-paypal">
+        <!-- Selector de Idioma -->
+        <div class="language-container">
+            <span>🌐</span>
+            <select id="langSelect" onchange="cambiarIdioma(this.value)">
+                <!-- JS inserta opciones -->
+            </select>
+        </div>
+
+        <a href="https://www.paypal.me/josestorm88" target="_blank" class="btn-paypal" data-i18n="support">
             ☕ Apoyar el proyecto
         </a>
     </div>
 
     <!-- PANEL DE CONTROL (Se oculta automáticamente) -->
     <div id="panelControl" onclick="event.stopPropagation()">
-        <div class="lbl-info" id="infoCamara">Buscando cámaras...</div>
+        <div class="lbl-info" id="infoCamara" data-i18n="searching">Buscando cámaras...</div>
 
         <div class="fila-control">
-            <button class="btn-ctrl" onclick="cambiarCamara(-1)">&#8592; Ant</button>
-            <button class="btn-ctrl" onclick="cambiarCamara(1)">Sig &#8594;</button>
+            <button class="btn-ctrl" onclick="cambiarCamara(-1)"><span data-i18n="prev">&#8592; Ant</span></button>
+            <button class="btn-ctrl" onclick="cambiarCamara(1)"><span data-i18n="next">Sig &#8594;</span></button>
         </div>
 
-        <div class="lbl-info" style="margin-top:5px; text-align:left;">Zoom / Lejanía: <span id="valZoom">100%</span>
+        <div class="lbl-info" style="margin-top:5px; text-align:left;"><span data-i18n="zoom">Zoom / Lejanía</span>:
+            <span id="valZoom">100%</span>
         </div>
         <div class="fila-control">
             <!-- Rango de 0.5 (alejado) a 1.5 (cerca) -->
@@ -254,7 +292,7 @@
         </div>
 
         <div class="lbl-info" style="margin-top:5px; font-size: 0.75rem; opacity: 0.5;">
-            Toca la pantalla para mostrar/ocultar este menú
+            <span data-i18n="touchHint">Toca la pantalla para mostrar/ocultar este menú</span>
         </div>
     </div>
 
@@ -272,6 +310,122 @@
     </div>
 
     <script>
+        // --- TRADUCCIONES (50 IDIOMAS) ---
+        const i18n = {
+            es: { title: "Terapia Espejo VR", desc: "Rehabilitación neuronal mediante realidad virtual.<br>Funciona en cualquier móvil con Cardboard/Visor VR.", start: "COMENZAR", perm: "Asegúrate de permitir el acceso a la cámara.", support: "☕ Apoyar el proyecto", searching: "Buscando cámaras...", prev: "← Ant", next: "Sig →", zoom: "Zoom / Lejanía", touchHint: "Toca para menú", loading: "Cargando", error: "Error: Ninguna cámara" },
+            en: { title: "Mirror Therapy VR", desc: "Neural rehabilitation using virtual reality.<br>Works on any mobile with Cardboard/VR Headset.", start: "START", perm: "Ensure you allow camera access.", support: "☕ Support the project", searching: "Searching cameras...", prev: "← Prev", next: "Next →", zoom: "Zoom / Distance", touchHint: "Touch for menu", loading: "Loading", error: "Error: No camera" },
+            fr: { title: "Thérapie Miyoir VR", desc: "Rééducation neuronale via réalité virtuelle.<br>Fonctionne sur tout mobile avec Cardboard/Casque VR.", start: "COMMENCER", perm: "Assurez-vous d'autoriser l'accès à la caméra.", support: "☕ Soutenir le projet", searching: "Recherche de caméras...", prev: "← Préc", next: "Suiv →", zoom: "Zoom / Distance", touchHint: "Toucher pour menu", loading: "Chargement", error: "Erreur: Pas de caméra" },
+            de: { title: "Spiegeltherapie VR", desc: "Neuronale Rehabilitation durch virtuelle Realität.<br>Funktioniert mit jedem Handy mit Cardboard/VR-Brille.", start: "STARTEN", perm: "Bitte Kamerazugriff erlauben.", support: "☕ Projekt unterstützen", searching: "Suche Kameras...", prev: "← Zurück", next: "Weiter →", zoom: "Zoom / Abstand", touchHint: "Tippen für Menü", loading: "Laden", error: "Fehler: Keine Kamera" },
+            pt: { title: "Terapia de Espelho VR", desc: "Reabilitação neural via realidade virtual.<br>Funciona em qualquer celular com Cardboard/VR.", start: "COMEÇAR", perm: "Certifique-se de permitir o acesso à câmera.", support: "☕ Apoiar o projeto", searching: "Procurando câmeras...", prev: "← Ant", next: "Prox →", zoom: "Zoom / Distância", touchHint: "Toque para menu", loading: "Carregando", error: "Erro: Nenhuma câmera" },
+            it: { title: "Terapia dello Specchio VR", desc: "Riabilitazione neuronale tramite realtà virtuale.<br>Funziona su qualsiasi cellulare con Cardboard/VR.", start: "INIZIA", perm: "Assicurati di consentire l'accesso alla fotocamera.", support: "☕ Sostieni il progetto", searching: "Cercando telecamere...", prev: "← Prec", next: "Succ →", zoom: "Zoom / Distanza", touchHint: "Tocca per menu", loading: "Caricamento", error: "Errore: Nessuna telecamera" },
+            ru: { title: "Зеркальная терапия VR", desc: "Нейрореабилитация с помощью виртуальной реальности.<br>Работает на любом телефоне с Cardboard/VR.", start: "НАЧАТЬ", perm: "Разрешите доступ к камере.", support: "☕ Поддержать проект", searching: "Поиск камер...", prev: "← Пред", next: "След →", zoom: "Зум / Расстояние", touchHint: "Коснитесь для меню", loading: "Загрузка", error: "Ошибка: Нет камеры" },
+            zh: { title: "镜像疗法 VR", desc: "通过虚拟现实进行神经康复。<br>适用于任何带有Cardboard/VR头盔的手机。", start: "开始", perm: "请确保允许访问摄像头。", support: "☕ 支持该项目", searching: "正在搜索摄像头...", prev: "← 上一个", next: "下一个 →", zoom: "缩放 / 距离", touchHint: "点击显示菜单", loading: "正在加载", error: "错误：无摄像头" },
+            ja: { title: "ミラーセラピー VR", desc: "バーチャルリアリティによる神経リハビリテーション。<br>Cardboard/VRヘッドセット対応の携帯電話で動作します。", start: "開始", perm: "カメラへのアクセスを許可してください。", support: "☕ プロジェクトを支援", searching: "カメラを検索中...", prev: "← 前へ", next: "次へ →", zoom: "ズーム / 距離", touchHint: "メニューをタップ", loading: "読み込み中", error: "エラー: カメラなし" },
+            ko: { title: "거울 치료 VR", desc: "가상 현실을 이용한 신경 재활.<br>Cardboard/VR 헤드셋이 있는 모든 모바일에서 작동.", start: "시작", perm: "카메라 액세스를 허용해 주세요.", support: "☕ 프로젝트 후원", searching: "카메라 검색 중...", prev: "← 이전", next: "다음 →", zoom: "줌 / 거리", touchHint: "메뉴 터치", loading: "로딩 중", error: "오류: 카메라 없음" },
+            ar: { title: "علاج المرآة VR", desc: "إعادة التأهيل العصبي باستخدام الواقع الافتراضي.<br>يعمل على أي هاتف محمول مع نظارة Cardboard/VR.", start: "بدء", perm: "تأكد من السماح بالوصول إلى الكاميرا.", support: "☕ دعم المشروع", searching: "البحث عن الكاميرات...", prev: "← سابق", next: "تالي →", zoom: "تكييف / مسافة", touchHint: "المس للقائمة", loading: "جار التحميل", error: "خطأ: لا توجد كاميرا" },
+            hi: { title: "मिरर थेरेपी VR", desc: "आभासी वास्तविकता का उपयोग करके तंत्रिका पुनर्वास.<br>Cardboard/VR हेडसेट के साथ किसी भी मोबाइल पर काम करता है।", start: "शुरू करें", perm: "कृपया कैमरा एक्सेस की अनुमति दें।", support: "☕ परियोजना का समर्थन करें", searching: "कैमरे खोज रहे हैं...", prev: "← पिछला", next: "अगला →", zoom: "ज़ूम / दूरी", touchHint: "मेनू के लिए स्पर्श करें", loading: "लोड हो रहा है", error: "त्रुटि: कोई कैमरा नहीं" },
+            bn: { title: "मिरर थेरेपी VR", desc: "ভার्चুয়াল রিয়েলিटी ব্যবহার করে স্নায়ु পুনর্বাসন.<br>Cardboard/VR হেডসেট সহ যেকোনো मोबाइले काम করে।", start: "शुरू", perm: "क্যামेरा অ্যাক্সেস অনুমতি দিন।", support: "☕ প্রকল্প সমর্থন", searching: "क্যামেরা খুঁজছে...", prev: "← পূর্ব", next: "পর →", zoom: "জুম / দূরत्ব", touchHint: "मेनু স্পর্শ", loading: "लोड হচ্ছে", error: "ত্রুটি: ক্যামেরা নেই" },
+            tr: { title: "Ayna Terapisi VR", desc: "Sanal gerçeklik kullanarak nörolojik rehabilitasyon.<br>Cardboard/VR Başlıklı herhangi bir cep telefonunda çalışır.", start: "BAŞLAT", perm: "Kamera erişimine izin verdiğinizden emin olun.", support: "☕ Projeyi Destekle", searching: "Kamera aranıyor...", prev: "← Önceki", next: "Sonraki →", zoom: "Yakınlaştır / Mesafe", touchHint: "Menü için dokun", loading: "Yükleniyor", error: "Hata: Kamera yok" },
+            nl: { title: "Spiegeltherapie VR", desc: "Neurale revalidatie via virtual reality.<br>Werkt op elke mobiel met Cardboard/VR-bril.", start: "STARTEN", perm: "Zorg ervoor dat je cameratoegang toestaat.", support: "☕ Steun het project", searching: "Camera's zoeken...", prev: "← Vorige", next: "Volgende →", zoom: "Zoom / Afstand", touchHint: "Tik voor menu", loading: "Laden", error: "Fout: Geen camera" },
+            pl: { title: "Terapia Lustrzana VR", desc: "Rehabilitacja neurologiczna przy użyciu wirtualnej rzeczywistości.<br>Działa na każdym telefonie z Google Cardboard.", start: "START", perm: "Upewnij się, że zezwoliłeś na dostęp do kamery.", support: "☕ Wesprzyj projekt", searching: "Szukanie kamer...", prev: "← Poprz", next: "Nast →", zoom: "Zoom / Dystans", touchHint: "Dotknij menu", loading: "Ładowanie", error: "Błąd: Brak kamery" },
+            sv: { title: "Spegelterapi VR", desc: "Neurologisk rehabilitering med virtuell verklighet.<br>Fungerar på alla mobiler med Cardboard/VR.", start: "STARTA", perm: "Se till att tillåta kameraåtkomst.", support: "☕ Stöd projektet", searching: "Söker kameror...", prev: "← Föreg", next: "Nästa →", zoom: "Zoom / Avstånd", touchHint: "Tryck för meny", loading: "Laddar", error: "Fel: Ingen kamera" },
+            da: { title: "Spejlterapi VR", desc: "Neural rehabilitering via virtual reality.<br>Virker på enhver mobil med Cardboard/VR.", start: "START", perm: "Tillad venligst kameraadgang.", support: "☕ Støt projektet", searching: "Søger kameraer...", prev: "← Forrige", next: "Næste →", zoom: "Zoom / Afstand", touchHint: "Tryk for menu", loading: "Indlæser", error: "Fejl: Intet kamera" },
+            fi: { title: "Peilihoito VR", desc: "Neurologinen kuntoutus virtuaalitodellisuuden avulla.<br>Toimii kaikilla puhelimilla Cardboard/VR:n kanssa.", start: "ALOITA", perm: "Salli kameran käyttö.", support: "☕ Tue projektia", searching: "Etsitään kameroita...", prev: "← Edell", next: "Seur →", zoom: "Zoom / Etäisyys", touchHint: "Kosketa valikkoa", loading: "Ladataan", error: "Virhe: Ei kamera" },
+            no: { title: "Speilterapi VR", desc: "Nevrologisk rehabilitering ved hjelp av virtuell virkelighet.<br>Fungerer på alle mobiler med Cardboard/VR.", start: "START", perm: "Tillat kameratilgang.", support: "☕ Støtt prosjektet", searching: "Søker kameraer...", prev: "← Forrige", next: "Neste →", zoom: "Zoom / Avstand", touchHint: "Trykk for meny", loading: "Laster", error: "Feil: Ingen kamera" },
+            he: { title: "טיפול במראה VR", desc: "שיקום נוירולוגי באמצעות מציאות מדומה.<br>עובד על כל נייד עם קארדבורד/משקפי VR.", start: "התחל", perm: "אנא אשר גישה למצלמה.", support: "☕ תמוך בפרויקט", searching: "מחפש מצלמות...", prev: "← הקודם", next: "הבא →", zoom: "זום / מרחק", touchHint: "גע לתפריט", loading: "טוען", error: "שגיאה: אין מצלמה" },
+            el: { title: "θεραπεία καθρέφτη VR", desc: "Νευρική αποκατάσταση μέσω εικονικής πραγματικότητας.<br>Λειτουργεί σε οποιοδήποτε κινητό με Cardboard/VR.", start: "ΕΝΑΡΞΗ", perm: "Βεβαιωθείτε ότι επιτρέπετε την πρόσβαση στην κάμερα.", support: "☕ Υποστήριξη", searching: "Αναζήτηση καμερών...", prev: "← Προηγ", next: "Επόμ →", zoom: "Ζουμ / Απόσταση", touchHint: "Αγγίξτε για μενού", loading: "Φόρτωση", error: "Σφάλμα: Καμία κάμερα" },
+            uk: { title: "Дзеркальна терапія VR", desc: "Нейрореабілітація за допомогою віртуальної реальності.<br>Працює на будь-якому мобільному з Cardboard/VR.", start: "ПОЧАТИ", perm: "Дозвольте доступ до камери.", support: "☕ Підтримати", searching: "Пошук камер...", prev: "← Попер", next: "Наст →", zoom: "Зум / Відстань", touchHint: "Торкніться для меню", loading: "Завантаження", error: "Помилка: Немає камери" },
+            vi: { title: "Liệu pháp gương VR", desc: "Phục hồi chức năng thần kinh bằng thực tế ảo.<br>Hoạt động trên mọi điện thoại di động với Cardboard/VR.", start: "BẮT ĐẦU", perm: "Hãy đảm bảo cho phép truy cập camera.", support: "☕ Hỗ trợ dự án", searching: "Đang tìm camera...", prev: "← Trướ", next: "Tiếp →", zoom: "Zoom / Khoảng cách", touchHint: "Chạm để mở menu", loading: "Đang tải", error: "Lỗi: Không có camera" },
+            th: { title: "การบำบัดด้วยกระจก VR", desc: "การฟื้นฟูระบบประสาทโดยใช้ความจริงเสมือน<br>ใช้ได้กับมือถือทุกรุ่นที่มี Cardboard/VR", start: "เริ่ม", perm: "โปรดอนุญาตการเข้าถึงกล้อง", support: "☕ สนับสนุนโครงการ", searching: "กำลังค้นหากล้อง...", prev: "← ก่อน", next: "ถัดไป →", zoom: "ซูม / ระยะทาง", touchHint: "แตะเพื่อดูเมนู", loading: "กำลังโหลด", error: "ข้อผิดพลาด: ไม่มีกล้อง" },
+            id: { title: "Terapi Cermin VR", desc: "Rehabilitasi saraf menggunakan realitas virtual.<br>Bekerja pada ponsel apa pun dengan Cardboard/VR.", start: "MULAI", perm: "Pastikan untuk mengizinkan akses kamera.", support: "☕ Dukung proyek", searching: "Mencari kamera...", prev: "← Seb", next: "Lanj →", zoom: "Zoom / Jarak", touchHint: "Sentuh untuk menu", loading: "Memuat", error: "Kesalahan: Tidak ada kamera" },
+            ms: { title: "Terapi Cermin VR", desc: "Pemulihan saraf menggunakan realiti maya.<br>Berfungsi pada mana-mana telefon bimbit dengan Cardboard/VR.", start: "MULA", perm: "Pastikan benarkan akses kamera.", support: "☕ Sokong projek", searching: "Mencari kamera...", prev: "← Sblm", next: "Strus →", zoom: "Zum / Jarak", touchHint: "Sentuh untuk menu", loading: "Memuatkan", error: "Ralat: Tiada kamera" },
+            cs: { title: "Zrcadlová terapie VR", desc: "Neurorehabilitace pomocí virtuální reality.<br>Funguje na jakémkoli mobilu s Cardboard/VR.", start: "START", perm: "Povolte prosím přístup ke kameře.", support: "☕ Podpořit projekt", searching: "Hledání kamer...", prev: "← Před", next: "Další →", zoom: "Zoom / Vzdálenost", touchHint: "Dotyk pro menu", loading: "Načítání", error: "Chyba: Žádná kamera" },
+            hu: { title: "Tükör terápia VR", desc: "Idegrendszeri rehabilitáció virtuális valósággal.<br>Bármilyen mobilon működik Cardboard/VR-rel.", start: "INDÍTÁS", perm: "Kérjük, engedélyezze a kamerát.", support: "☕ Projekt támogatása", searching: "Kamerák keresése...", prev: "← Előző", next: "Köv →", zoom: "Zoom / Távolság", touchHint: "Érintse meg a menüt", loading: "Betöltés", error: "Hiba: Nincs kamera" },
+            ro: { title: "Terapia Oglinzii VR", desc: "Reabilitare neuronală prin realitate virtuală.<br>Funcționează pe orice mobil cu Cardboard/VR.", start: "START", perm: "Asigurați-vă că permiteți accesul la cameră.", support: "☕ Susțineți proiectul", searching: "Căutare camere...", prev: "← Ant", next: "Urm →", zoom: "Zoom / Distanță", touchHint: "Atingeți pt meniu", loading: "Încărcare", error: "Eroare: Fără cameră" },
+            sk: { title: "Zrkadlová terapia VR", desc: "Neurorehabilitácia pomocou virtuálnej reality.<br>Funguje na akomkoľvek mobile s Cardboard/VR.", start: "ŠTART", perm: "Povoľte prístup ku kamere.", support: "☕ Podporiť projekt", searching: "Hľadanie kamier...", prev: "← Pred", next: "Ďalšie →", zoom: "Zoom / Vzdialenosť", touchHint: "Dotyk pre menu", loading: "Načítanie", error: "Chyba: Žiadna kamera" },
+            hr: { title: "Terapija ogledalom VR", desc: "Neuralna rehabilitacija putem virtualne stvarnosti.<br>Radi na svakom mobitelu s Cardboard/VR.", start: "START", perm: "Dopustite pristup kameri.", support: "☕ Podrži projekt", searching: "Traženje kamera...", prev: "← Pret", next: "Sljed →", zoom: "Zoom / Udaljenost", touchHint: "Dodir za izbornik", loading: "Učitavanje", error: "Greška: Nema kamere" },
+            sr: { title: "Terapija ogledalom VR", desc: "Rehab putem virtuelne stvarnosti.<br>Radi na svakom telefonu sa Cardboard/VR.", start: "START", perm: "Dozvolite pristup kameri.", support: "☕ Podrži projekat", searching: "Traženje kamera...", prev: "← Pret", next: "Sled →", zoom: "Zum / Udaljenost", touchHint: "Dodir za meni", loading: "Učitavanje", error: "Greška: Nema kamere" },
+            bg: { title: "Огледална терапия VR", desc: "Неврореабилитация чрез виртуална реалност.<br>Работи на всеки мобилен телефон с Cardboard/VR.", start: "СТАРТ", perm: "Разрешете достъп до камерата.", support: "☕ Подкрепете", searching: "Търсене на камери...", prev: "← Пред", next: "След →", zoom: "Увеличение", touchHint: "Докоснете за меню", loading: "Зареждане", error: "Грешка: Няма камера" },
+            sl: { title: "Zrcalna terapija VR", desc: "Rehabilitacija z navidezno resničnostjo.<br>Deluje na vseh telefonih s Cardboard/VR.", start: "ZAČNI", perm: "Dovolite dostop do kamere.", support: "☕ Podpri projekt", searching: "Iskanje kamer...", prev: "← Prej", next: "Nasl →", zoom: "Zoom / Razdalja", touchHint: "Dotik za meni", loading: "Nalaganje", error: "Napaka: Ni kamere" },
+            lt: { title: "Veidrodinė terapija VR", desc: "Neuroreabilitacija naudojant virtualią realybę.<br>Veikia bet kuriame telefone su Cardboard/VR.", start: "PRADĖTI", perm: "Leiskite naudoti kamerą.", support: "☕ Paremkite projektą", searching: "Ieškoma kamerų...", prev: "← Atgal", next: "Pirm →", zoom: "Mastelis / Atstumas", touchHint: "Palieskite meniu", loading: "Kraunama", error: "Klaida: Nėra kameros" },
+            lv: { title: "Spoguļterapija VR", desc: "Neirorehabilitācija, izmantojot virtuālo realitāti.<br>Darbojas jebkurā tālrunī ar Cardboard/VR.", start: "SĀKT", perm: "Lūdzu, atļaujiet kameras piekļuvi.", support: "☕ Atbalstīt projektu", searching: "Meklē kameras...", prev: "← Iepr", next: "Nāk →", zoom: "Tālummaiņa", touchHint: "Pieskarieties izvēlnei", loading: "Ielādē", error: "Kļūda: Nav kameras" },
+            et: { title: "Peegelravi VR", desc: "Neurorehabilitatsioon virtuaalreaalsuse abil.<br>Töötab igas telefonis Cardboard/VR-iga.", start: "ALUSTA", perm: "Lubage kaamera juurdepääs.", support: "☕ Toeta projekti", searching: "Kaamerate otsimine...", prev: "← Eelm", next: "Järg →", zoom: "Suum / Kaugus", touchHint: "Puuduta menüüd", loading: "Laadimine", error: "Viga: Kaamera puudub" },
+            tl: { title: "Mirror Therapy VR", desc: "Rehabilitasyon gamit ang virtual reality.<br>Gumagana sa anumang mobile na may Cardboard/VR.", start: "SIMULA", perm: "Pahintulutan ang access sa camera.", support: "☕ Suportahan ang proyekto", searching: "Naghahanap ng mga camera...", prev: "← Nakara", next: "Susunod →", zoom: "Zoom / Distansya", touchHint: "Pindutin para sa menu", loading: "Naglo-load", error: "Error: Walang camera" },
+            fa: { title: "درمان آینه‌ای VR", desc: "توانبخشی عصبی با واقعیت مجازی.<br>روی هر موبایلی با Cardboard/VR کار می‌کند.", start: "شروع", perm: "دسترسی به دوربین را مجاز کنید.", support: "☕ حمایت از پروژه", searching: "جستجوی دوربین‌ها...", prev: "← قبلی", next: "بعدی →", zoom: "زوم / فاصله", touchHint: "لمس برای منو", loading: "بارگذاری", error: "خطا: دوربینی نیست" }, // RTL handled by browser usually
+            ur: { title: "آئینہ تھراپی VR", desc: "ورچوئل رئیلٹی کے ذریعے اعصابی بحالی.<br>Cardboard/VR کے ساتھ کسی بھی موبائل پر کام کرتا ہے۔", start: "شروع کریں", perm: "براہ کرم کیمرے تک رسائی کی اجازت دیں۔", support: "☕ پروجیکٹ کی حمایت کریں", searching: "کیمرے تلاش کر رہا ہے...", prev: "← پچھلا", next: "اگلا →", zoom: "زوم / فاصلہ", touchHint: "مینو کے لیے ٹچ کریں", loading: "لوڈنگ", error: "غلطی: کوئی کیمرہ نہیں" },
+            sw: { title: "Tiba ya Kioo VR", desc: "Ukarabati wa neva kwa kutumia uhalisia pepe.<br>Inafanya kazi kwenye simu yoyote na Cardboard/VR.", start: "ANZA", perm: "Ruhusu ufikiaji wa kamera.", support: "☕ Saidia mradi", searching: "Inatafuta kamera...", prev: "← Nyuma", next: "Mbele →", zoom: "Kuza / Umbali", touchHint: "Gusa kwa menyu", loading: "Inapakia", error: "Hitilafu: Hakuna kamera" }
+        };
+
+        const languageNames = {
+            es: "Español", en: "English", fr: "Français", de: "Deutsch", pt: "Português",
+            it: "Italiano", ru: "Русский", zh: "中文", ja: "日本語", ko: "한국어",
+            ar: "العربية", hi: "हिन्दी", bn: "বাংলা", tr: "Türkçe", nl: "Nederlands",
+            pl: "Polski", sv: "Svenska", da: "Dansk", fi: "Suomi", no: "Norsk",
+            he: "עברית", el: "Ελληνικά", uk: "Українська", vi: "Tiếng Việt", th: "ไทย",
+            id: "Bahasa Indonesia", ms: "Bahasa Melayu", cs: "Čeština", hu: "Magyar", ro: "Română",
+            sk: "Slovenčina", hr: "Hrvatski", sr: "Српски", bg: "Български", sl: "Slovenščina",
+            lt: "Lietuvių", lv: "Latviešu", et: "Eesti", tl: "Tagalog", fa: "فارسی",
+            ur: "اردو", sw: "Kiswahili"
+        };
+
+        let idiomaActual = 'es';
+
+        // --- GESTIÓN DE IDIOMA ---
+        function initIdioma() {
+            // Detectar idioma navegador (ej: "es-ES" -> "es")
+            const navLang = navigator.language.split('-')[0];
+            idiomaActual = i18n[navLang] ? navLang : 'en';
+
+            const select = document.getElementById('langSelect');
+
+            // Llenar selector ordenado alfabéticamente por nombre
+            const sortedLangs = Object.keys(languageNames).sort((a, b) => languageNames[a].localeCompare(languageNames[b]));
+
+            sortedLangs.forEach(code => {
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.innerText = languageNames[code];
+                select.appendChild(opt);
+            });
+
+            // Seleccionar actual
+            select.value = idiomaActual;
+            aplicarIdioma(idiomaActual);
+        }
+
+        function cambiarIdioma(newLang) {
+            idiomaActual = newLang;
+            aplicarIdioma(newLang);
+        }
+
+        function aplicarIdioma(lang) {
+            const texts = i18n[lang] || i18n['en'];
+
+            // Actualizar textos simples
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (texts[key]) el.innerHTML = texts[key];
+            });
+
+            // Actualizar textos dinámicos si la app ya está corriendo (cámaras)
+            if (listaDispositivos.length > 0) {
+                // Forzar actualización de label de cámara
+                const device = listaDispositivos[indiceCamActual];
+                const cleanLabel = device.label || ('Cám ' + (indiceCamActual + 1));
+
+                document.getElementById('infoCamara').innerText =
+                    `${indiceCamActual + 1}/${listaDispositivos.length}: ${cleanLabel}`;
+            }
+        }
+
+        function t(key) {
+            const texts = i18n[idiomaActual] || i18n['en'];
+            return texts[key] || key;
+        }
+
+        // --- INICIALIZACIÓN ---
+        initIdioma(); // Cargar idioma al arrancar script
+
         let streamActual = null;
         let listaDispositivos = [];
         let indiceCamActual = 0;
@@ -305,7 +459,7 @@
                 await navigator.mediaDevices.getUserMedia({ video: true });
                 await listarCamaras();
             } catch (err) {
-                alert("Es necesario permitir el acceso a la cámara. Por favor refresca y acepta.");
+                alert(t('perm'));
             }
         }
 
@@ -323,7 +477,7 @@
 
                 cargarCamara(indiceCamActual);
             } else {
-                document.getElementById('infoCamara').innerText = "No se encontraron cámaras.";
+                document.getElementById('infoCamara').innerText = t('error');
             }
         }
 
@@ -336,7 +490,7 @@
             }
 
             const device = listaDispositivos[index];
-            document.getElementById('infoCamara').innerText = `Cargando: ${device.label || 'Cámara ' + (index + 1)}`;
+            document.getElementById('infoCamara').innerText = `${t('loading')}: ${device.label || (index + 1)}`;
 
             // --- TRUCO CLAVE 1: ASPECT RATIO 4:3 ---
             // Pedimos 4:3 (ideal 1.333) porque usa el sensor completo en vertical.
@@ -365,11 +519,11 @@
                 const settings = track.getSettings();
                 // Mostramos info extra si queremos depurar (ej: resolución real)
                 document.getElementById('infoCamara').innerText =
-                    `${index + 1}/${listaDispositivos.length}: ${device.label || 'Cámara Generic'}`; // \n(${settings.width}x${settings.height})`;
+                    `${index + 1}/${listaDispositivos.length}: ${device.label || 'Generic'}`; // \n(${settings.width}x${settings.height})`;
 
             } catch (err) {
                 console.error("Error cargando cámara:", err);
-                document.getElementById('infoCamara').innerText = "Error accediendo a cámara. Prueba otra.";
+                document.getElementById('infoCamara').innerText = t('error');
             }
         }
 
