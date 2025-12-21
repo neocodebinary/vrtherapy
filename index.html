@@ -310,6 +310,13 @@
     </div>
 
     <script>
+        // --- ESTADO GLOBAL ---
+        let streamActual = null;
+        let listaDispositivos = [];
+        let indiceCamActual = 0;
+        let timerOcultarUI = null;
+        let escalaZoom = 1.0;
+
         // --- TRADUCCIONES (50 IDIOMAS) ---
         const i18n = {
             es: { title: "Terapia Espejo VR", desc: "Rehabilitación neuronal mediante realidad virtual.<br>Funciona en cualquier móvil con Cardboard/Visor VR.", start: "COMENZAR", perm: "Asegúrate de permitir el acceso a la cámara.", support: "☕ Apoyar el proyecto", searching: "Buscando cámaras...", prev: "← Ant", next: "Sig →", zoom: "Zoom / Lejanía", touchHint: "Toca para menú", loading: "Cargando", error: "Error: Ninguna cámara" },
@@ -426,11 +433,8 @@
         // --- INICIALIZACIÓN ---
         initIdioma(); // Cargar idioma al arrancar script
 
-        let streamActual = null;
-        let listaDispositivos = [];
-        let indiceCamActual = 0;
-        let timerOcultarUI = null;
-        let escalaZoom = 1.0;
+        // Estas variables ya están declaradas arriba, eliminamos duplicados si los hubiera
+        // y aseguramos que el flujo es limpio.
 
         // --- INICIALIZACIÓN ---
         async function iniciarApp(e) {
