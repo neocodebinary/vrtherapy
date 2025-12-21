@@ -460,8 +460,14 @@
 
             // Pedir permisos INICIALES para poder listar etiquetas
             try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
+                const streamPermiso = await navigator.mediaDevices.getUserMedia({ video: true });
                 await listarCamaras();
+
+                // IMPORTANTE: Detener este stream "fantasma" que solo usamos para pedir permiso.
+                // Si no lo paramos, puede bloquear el acceso a otras lentes (Gran Angular, etc)
+                // o mantener ocupado el hardware.
+                streamPermiso.getTracks().forEach(track => track.stop());
+
             } catch (err) {
                 alert(t('perm'));
             }
