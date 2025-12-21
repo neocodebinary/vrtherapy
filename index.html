@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+
+    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -11,212 +13,410 @@
     <title>Rehabilitación Espejo VR</title>
     <style>
         body {
-            margin: 0; padding: 0; background-color: black;
-            overflow: hidden; display: flex; height: 100vh; width: 100vw;
-            font-family: Arial, sans-serif;
-            -webkit-user-select: none; /* Evita seleccionar texto sin querer */
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-user-select: none;
             user-select: none;
         }
 
+        /* Contenedor de cada ojo */
         .eye {
-            width: 50%; height: 100%; position: relative;
-            overflow: hidden; border-right: 1px solid #111;
+            width: 50%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid #222;
+            background: #000;
+        }
+
+        /* 
+           Usamos un contenedor interno para el video para poder aplicar transformaciones (Zoom/Pan)
+           sin afectar al tamaño del viewport del ojo.
+        */
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         video {
-            width: 100%; height: 100%; object-fit: cover;
-            transform: scaleX(-1); /* EFECTO ESPEJO */
+            /* 
+               Por defecto object-fit: cover llena la pantalla, pero recorta.
+               El usuario podrá ajustar esto con el zoom.
+            */
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            /* EFECTO ESPEJO */
+            transition: transform 0.1s linear;
+            /* Suavizar zoom manual */
         }
 
+        /* --- UI DE INICIO --- */
         #pantallaInicio {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a1a, #000000);
-            z-index: 100; display: flex;
-            flex-direction: column; justify-content: center;
-            align-items: center; color: white; text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        h1 { margin-bottom: 10px; font-size: 28px; letter-spacing: 1px; }
-        p { color: #aaa; margin-bottom: 30px; }
+        h1 {
+            margin-bottom: 5px;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: #ccc;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            max-width: 600px;
+            line-height: 1.5;
+        }
 
         .btn-grande {
-            padding: 18px 40px; font-size: 20px; background: #007bff;
-            color: white; border: none; border-radius: 50px;
-            box-shadow: 0 0 25px rgba(0,123,255,0.4);
-            cursor: pointer; transition: transform 0.2s;
-            font-weight: bold; text-transform: uppercase;
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 0 30px rgba(0, 123, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .btn-grande:active { transform: scale(0.95); }
+
+        .btn-grande:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
+        }
 
         .btn-paypal {
-            margin-top: 40px;
-            padding: 12px 25px;
-            font-size: 14px;
-            background: transparent;
-            color: #FFC439; /* Color dorado PayPal */
+            margin-top: 50px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            background: rgba(255, 196, 57, 0.05);
+            color: #FFC439;
             border: 1px solid #FFC439;
             border-radius: 30px;
             text-decoration: none;
-            display: inline-block;
             transition: background 0.3s;
         }
-        .btn-paypal:hover { background: rgba(255, 196, 57, 0.1); }
 
-        #btnCambio {
-            display: none; position: absolute; bottom: 30px; left: 50%;
-            transform: translateX(-50%); z-index: 50;
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.4);
-            color: white; padding: 12px 25px; font-size: 14px;
-            border-radius: 30px; backdrop-filter: blur(4px);
-            font-weight: bold; 
-            transition: opacity 0.5s ease;
-            opacity: 1;
-            white-space: nowrap;
+        .btn-paypal:hover {
+            background: rgba(255, 196, 57, 0.15);
+        }
+
+        /* --- UI DE CONTROL (FLOTANTE) --- */
+        #panelControl {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 15px;
+            display: none;
+            /* Se muestra al iniciar */
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+            color: white;
+            transition: opacity 0.5s;
+        }
+
+        .fila-control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lbl-info {
+            font-size: 0.85rem;
+            color: #aaa;
+            text-align: center;
+            width: 100%;
+        }
+
+        button.btn-ctrl {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            flex: 1;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.btn-ctrl:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Sliders */
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        .oculto {
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
 
-<body onclick="interaccionUsuario()">
+<body onclick="mostrarUI()">
 
+    <!-- PANTALLA INICIO -->
     <div id="pantallaInicio">
         <h1>Terapia Espejo VR</h1>
-        <p>Herramienta gratuita de rehabilitación</p>
-        
-        <button class="btn-grande" onclick="arrancarTodo(event)">COMENZAR</button>
+        <p>Rehabilitación neuronal mediante realidad virtual.<br>Funciona en cualquier móvil con Cardboard/Visor VR.</p>
+
+        <button class="btn-grande" onclick="iniciarApp(event)">COMENZAR</button>
+
+        <p style="font-size: 0.8rem; margin-top: 30px; opacity: 0.6;">
+            Asegúrate de permitir el acceso a la cámara.
+        </p>
 
         <a href="https://www.paypal.me/josestorm88" target="_blank" class="btn-paypal">
-            ☕ Invítame a un café
+            ☕ Apoyar el proyecto
         </a>
     </div>
 
-    <button id="btnCambio" onclick="siguienteCamara(event)">CAMBIAR CÁMARA ↻</button>
+    <!-- PANEL DE CONTROL (Se oculta automáticamente) -->
+    <div id="panelControl" onclick="event.stopPropagation()">
+        <div class="lbl-info" id="infoCamara">Buscando cámaras...</div>
 
-    <div class="eye"><video id="videoL" playsinline autoplay muted></video></div>
-    <div class="eye"><video id="videoR" playsinline autoplay muted></video></div>
+        <div class="fila-control">
+            <button class="btn-ctrl" onclick="cambiarCamara(-1)">&#8592; Ant</button>
+            <button class="btn-ctrl" onclick="cambiarCamara(1)">Sig &#8594;</button>
+        </div>
+
+        <div class="lbl-info" style="margin-top:5px; text-align:left;">Zoom / Lejanía: <span id="valZoom">100%</span>
+        </div>
+        <div class="fila-control">
+            <!-- Rango de 0.5 (alejado) a 1.5 (cerca) -->
+            <input type="range" id="zoomSlider" min="0.4" max="1.5" step="0.05" value="1.0"
+                oninput="ajustarZoom(this.value)">
+        </div>
+
+        <div class="lbl-info" style="margin-top:5px; font-size: 0.75rem; opacity: 0.5;">
+            Toca la pantalla para mostrar/ocultar este menú
+        </div>
+    </div>
+
+    <!-- VISTA VR (Doble Ojo) -->
+    <!-- Contenedor extra para poder aplicar transformaciones CSS (Zoom) sin romper el layout -->
+    <div class="eye">
+        <div class="video-container" id="contL">
+            <video id="videoL" playsinline autoplay muted></video>
+        </div>
+    </div>
+    <div class="eye">
+        <div class="video-container" id="contR">
+            <video id="videoR" playsinline autoplay muted></video>
+        </div>
+    </div>
 
     <script>
         let streamActual = null;
-        let listaCamaras = [];
-        let indiceCamara = 0;
-        let ocultarTimer;
-        let intentosFallidos = 0; // Para evitar bucles infinitos si no hay cámaras
+        let listaDispositivos = [];
+        let indiceCamActual = 0;
+        let timerOcultarUI = null;
+        let escalaZoom = 1.0;
 
-        function forzarFullscreen() {
-            let elem = document.documentElement;
-            if (!document.fullscreenElement) {
-                if (elem.requestFullscreen) { elem.requestFullscreen().catch(e=>{}); }
-                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+        // --- INICIALIZACIÓN ---
+        async function iniciarApp(e) {
+            if (e) e.stopPropagation();
+
+            // Intento de pantalla completa
+            try {
+                if (document.documentElement.requestFullscreen)
+                    await document.documentElement.requestFullscreen();
+                else if (document.documentElement.webkitRequestFullscreen)
+                    await document.documentElement.webkitRequestFullscreen();
+            } catch (err) { console.log("Fullscreen no permitido o cancelado"); }
+
+            // Wake Lock (Evitar que se apague la pantalla)
+            if ('wakeLock' in navigator) {
+                try { await navigator.wakeLock.request('screen'); } catch (e) { }
             }
-        }
-
-        function interaccionUsuario() {
-            const btn = document.getElementById('btnCambio');
-            
-            // Si ya arrancamos la app (el botón existe)
-            if(btn.style.display === 'block') {
-                btn.style.opacity = '1'; // Mostrar
-                clearTimeout(ocultarTimer);
-                
-                // Ocultar a los 5 segundos de inactividad
-                ocultarTimer = setTimeout(() => {
-                    btn.style.opacity = '0'; 
-                }, 5000);
-            }
-        }
-
-        async function arrancarTodo(e) {
-            if(e) e.stopPropagation();
-            forzarFullscreen();
 
             document.getElementById('pantallaInicio').style.display = 'none';
-            document.getElementById('btnCambio').style.display = 'block';
-            interaccionUsuario(); // Iniciar timer
+            document.getElementById('panelControl').style.display = 'flex';
 
+            mostrarUI(); // Inicia el temporizador de ocultar
+
+            // Pedir permisos INICIALES para poder listar etiquetas
             try {
-                // OPTIMIZACIÓN 1: Pedimos resolución HD en el permiso inicial
-                await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } } 
-                });
-                
-                const dispositivos = await navigator.mediaDevices.enumerateDevices();
-                listaCamaras = dispositivos.filter(d => d.kind === 'videoinput');
-
-                if (listaCamaras.length === 0) {
-                    document.getElementById('btnCambio').innerText = "No se detectan cámaras";
-                } else {
-                    cargarCamara(0);
-                }
-
-                if ('wakeLock' in navigator) { try { await navigator.wakeLock.request('screen'); } catch(e){} }
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                await listarCamaras();
             } catch (err) {
-                console.error(err);
-                document.getElementById('pantallaInicio').style.display = 'flex';
-                alert("Necesitamos permiso de cámara para funcionar.");
+                alert("Es necesario permitir el acceso a la cámara. Por favor refresca y acepta.");
+            }
+        }
+
+        // --- GESTIÓN DE CÁMARAS ---
+        async function listarCamaras() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            // Filtramos solo entradas de video
+            listaDispositivos = devices.filter(d => d.kind === 'videoinput');
+
+            if (listaDispositivos.length > 0) {
+                // Intentar encontrar la cámara trasera por defecto si es la primera vez
+                // Buscamos "back" o "environment" en la etiqueta
+                let indexBack = listaDispositivos.findIndex(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('trasera'));
+                if (indexBack !== -1) indiceCamActual = indexBack;
+
+                cargarCamara(indiceCamActual);
+            } else {
+                document.getElementById('infoCamara').innerText = "No se encontraron cámaras.";
             }
         }
 
         async function cargarCamara(index) {
+            if (listaDispositivos.length === 0) return;
+
+            // Detener stream anterior
             if (streamActual) {
                 streamActual.getTracks().forEach(track => track.stop());
             }
 
-            let camara = listaCamaras[index];
-            const btn = document.getElementById('btnCambio');
-            
-            btn.innerText = `Cargando Cám ${index + 1}...`;
+            const device = listaDispositivos[index];
+            document.getElementById('infoCamara').innerText = `Cargando: ${device.label || 'Cámara ' + (index + 1)}`;
+
+            // --- TRUCO CLAVE 1: ASPECT RATIO 4:3 ---
+            // Pedimos 4:3 (ideal 1.333) porque usa el sensor completo en vertical.
+            // 16:9 recorta arriba y abajo, reduciendo lo que ves de tu cuerpo.
+            const constraints = {
+                video: {
+                    deviceId: { exact: device.deviceId },
+                    aspectRatio: { ideal: 1.333 },
+                    width: { ideal: 1280 }, // Resolución base decente, pero prioriza ratio
+                    // resizeMode: "none" // Intentar evitar recorte por software si el browser lo soporta
+                },
+                audio: false
+            };
 
             try {
-                // OPTIMIZACIÓN 2: Pedimos resolución "ideal" HD (720p).
-                // Esto evita que los móviles viejos se saturen con 4K
-                // y que el S24 no falle si no tiene una resolución exacta.
-                const constraints = {
-                    video: { 
-                        deviceId: { exact: camara.deviceId },
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    },
-                    audio: false
-                };
-
                 streamActual = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                document.getElementById('videoL').srcObject = streamActual;
-                document.getElementById('videoR').srcObject = streamActual;
-                
-                btn.innerText = `CÁMARA ${index + 1} / ${listaCamaras.length}`;
-                intentosFallidos = 0; // Resetear contador de fallos
+
+                const vidL = document.getElementById('videoL');
+                const vidR = document.getElementById('videoR');
+
+                vidL.srcObject = streamActual;
+                vidR.srcObject = streamActual;
+
+                // Actualizar UI con nombre real
+                const track = streamActual.getVideoTracks()[0];
+                const settings = track.getSettings();
+                // Mostramos info extra si queremos depurar (ej: resolución real)
+                document.getElementById('infoCamara').innerText =
+                    `${index + 1}/${listaDispositivos.length}: ${device.label || 'Cámara Generic'}`; // \n(${settings.width}x${settings.height})`;
 
             } catch (err) {
-                console.log("Error en cámara " + index + ", saltando...");
-                
-                intentosFallidos++;
-                // Si hemos probado todas y ninguna va, paramos para no colgar el móvil
-                if (intentosFallidos >= listaCamaras.length) {
-                    btn.innerText = "Error: Ninguna cámara disponible";
-                    return;
-                }
-
-                // Salto recursivo automático a la siguiente cámara (rápido, 100ms)
-                setTimeout(() => {
-                   siguienteCamara(null); 
-                }, 100);
+                console.error("Error cargando cámara:", err);
+                document.getElementById('infoCamara').innerText = "Error accediendo a cámara. Prueba otra.";
             }
         }
 
-        function siguienteCamara(e) {
-            if(e) e.stopPropagation();
-            forzarFullscreen(); // Asegurar pantalla completa
-            interaccionUsuario(); // Mantener botón visible
+        function cambiarCamara(delta) {
+            if (listaDispositivos.length === 0) return;
 
-            if (listaCamaras.length < 1) return;
-            
-            indiceCamara++;
-            if (indiceCamara >= listaCamaras.length) {
-                indiceCamara = 0;
-            }
-            
-            cargarCamara(indiceCamara);
+            indiceCamActual += delta;
+
+            // Loop circular
+            if (indiceCamActual >= listaDispositivos.length) indiceCamActual = 0;
+            if (indiceCamActual < 0) indiceCamActual = listaDispositivos.length - 1;
+
+            mostrarUI();
+            cargarCamara(indiceCamActual);
         }
+
+        // --- ZOOM / ESCALA ---
+        function ajustarZoom(valor) {
+            escalaZoom = parseFloat(valor);
+            document.getElementById('valZoom').innerText = Math.round(escalaZoom * 100) + "%";
+
+            // Aplicamos escala. 
+            // scaleX(-1) es necesario para el espejo.
+            // Multiplicamos por la escala de zoom.
+            const transformString = `scaleX(-1) scale(${escalaZoom})`;
+
+            document.getElementById('videoL').style.transform = transformString;
+            document.getElementById('videoR').style.transform = transformString;
+
+            mostrarUI();
+        }
+
+        // --- UI INTERACTIVA ---
+        function mostrarUI() {
+            const panel = document.getElementById('panelControl');
+            if (panel.style.display !== 'flex') return; // Si no ha iniciado, no hacer nada
+
+            panel.classList.remove('oculto');
+
+            // Reiniciar timer
+            if (timerOcultarUI) clearTimeout(timerOcultarUI);
+            timerOcultarUI = setTimeout(() => {
+                panel.classList.add('oculto');
+            }, 4000);
+        }
+
     </script>
 </body>
+
 </html>
