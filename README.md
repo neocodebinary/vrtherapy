@@ -30,7 +30,7 @@ It is not designed to diagnose, cure, or treat any specific disease, injury, or 
 ---
 
 ## 🚀 How to Use
-1.  Open the **(https://neocodebinary.github.io/vrtherapy/)** on your smartphone.
+1.  Open the **https://neocodebinary.github.io/vrtherapy/** on your smartphone.
 2.  Select your rear camera (Wide Angle recommended).
 3.  Place your phone into a Cardboard/VR headset.
 4.  Put on the headset while seated.
