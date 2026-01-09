@@ -1,7 +1,3 @@
-# vrtherapy
-
-# vrtherapy
-
 # VR Mirror Therapy (WebXR)
 
 **A free, open-source Virtual Reality Mirror Therapy tool for stroke recovery and phantom limb pain.**
